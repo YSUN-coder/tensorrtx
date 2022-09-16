@@ -12,8 +12,8 @@ set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-std=c++11;-g;-G;-gencode;arch=compute_30
 
 # cuda directory
 include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(/usr/local/cuda-10.2/targets/x86_64-linux/include)
-link_directories(/usr/local/cuda-10.2/targets/x86_64-linux/lib)
+include_directories(/usr/local/cuda-10.2/targets/aarch64-linux/include)
+link_directories(/usr/local/cuda-10.2/targets/aarch64-linux/lib)
 
 # tensorrt
 include_directories(/home/sycv/workplace/pengyuzhou/TensorRT-7.0.0.11/targets/x86_64-linux-gnu/include)

@@ -9,13 +9,21 @@
 #define CREATENET(net) NETSTRUCT(net)
 #define STR1(x) #x
 #define STR2(x) STR1(x)
-// #define USE_FP16  // comment out this if want to use FP16
+#define USE_FP16  // comment out this if want to use FP16
 #define CONF_THRESH 0.5
 #define BATCH_SIZE 1
+#define BILINEAR true
 // stuff we know about the network and the input/output blobs
-static const int INPUT_H = 816;
-static const int INPUT_W = 672;
-static const int OUTPUT_SIZE = 672*816;
+//static const int INPUT_H = 816;
+//static const int INPUT_W = 672;
+//static const int OUTPUT_SIZE = 672*816;
+//(1640, 1232)
+//static const int INPUT_H = 616;
+//static const int INPUT_W = 820;
+//static const int OUTPUT_SIZE = 820*616;
+static const int INPUT_H = 115;
+static const int INPUT_W = 115;
+static const int OUTPUT_SIZE = 50*50;
 
 const char* INPUT_BLOB_NAME = "data";
 const char* OUTPUT_BLOB_NAME = "prob";
@@ -23,6 +31,8 @@ const char* OUTPUT_BLOB_NAME = "prob";
 using namespace nvinfer1;
 
 static Logger gLogger;
+using std::cout;
+using std::endl;
 
 
 cv::Mat preprocess_img(cv::Mat& img) {
@@ -122,6 +132,8 @@ ILayer* outConv(INetworkDefinition *network, std::map<std::string, Weights>& wei
     // Weights emptywts{DataType::kFLOAT, nullptr, 0};
 
     IConvolutionLayer* conv1 = network->addConvolutionNd(input, 1, DimsHW{1, 1}, weightMap[lname + ".conv.weight"], weightMap[lname + ".conv.bias"]);
+    //New version
+    //IConvolutionLayer* conv1 = network->addConvolutionNd(input, 2, DimsHW{1, 1}, weightMap[lname + ".conv.weight"], weightMap[lname + ".conv.bias"]);
     assert(conv1);
     conv1->setStrideNd(DimsHW{1, 1});
     conv1->setPaddingNd(DimsHW{0, 0});
@@ -138,7 +150,7 @@ ICudaEngine* createEngine_l(unsigned int maxBatchSize, IBuilder* builder, IBuild
     ITensor* data = network->addInput(INPUT_BLOB_NAME, dt, Dims3{ 3, INPUT_H, INPUT_W });
     assert(data);
 
-    std::map<std::string, Weights> weightMap = loadWeights("/home/sycv/workplace/pengyuzhou/tensorrtx/unet/unet_816_672.wts");
+    std::map<std::string, Weights> weightMap = loadWeights("/home/nano/mojowrepo/tensorrtx/unet/unet_v1_scale1_class1_bilinear.wts");
     Weights emptywts{DataType::kFLOAT, nullptr, 0};
 
     // build network
@@ -158,7 +170,8 @@ ICudaEngine* createEngine_l(unsigned int maxBatchSize, IBuilder* builder, IBuild
 
     // Build engine
     builder->setMaxBatchSize(maxBatchSize);
-    config->setMaxWorkspaceSize(16 * (1 << 20));  // 16MB
+    //config->setMaxWorkspaceSize(workspace_size);
+    config->setMaxWorkspaceSize(1 << 31);  // 2GB
 #ifdef USE_FP16
     config->setFlag(BuilderFlag::kFP16);
 #endif

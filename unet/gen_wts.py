@@ -7,7 +7,12 @@ from torchsummary import summary
 
 def main():
     print('cuda device count: ', torch.cuda.device_count())
-    net = torch.load('ori_unet.pth')
+    # New version
+    #net = UNet(n_channels=3, n_classes=2, bilinear=False)
+    #net.load_state_dict(torch.load('checkpoints/checkpoint_epoch75.pth'))
+
+    # Old version
+    net = torch.load('unet_carvana_scale1_epoch5.pth')
     net = net.to('cuda:0')
     net = net.eval()
     print('model: ', net)
@@ -20,7 +25,7 @@ def main():
 
     summary(net, (3, 224, 224))
     #return
-    f = open("unet.wts", 'w')
+    f = open("unet_carvana_scale1_epoch5.wts", 'w')
     f.write("{}\n".format(len(net.state_dict().keys())))
     for k,v in net.state_dict().items():
         print('key: ', k)
