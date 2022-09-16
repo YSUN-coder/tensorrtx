@@ -7,7 +7,8 @@ from torchsummary import summary
 
 def main():
     print('cuda device count: ', torch.cuda.device_count())
-    net = torch.load('ori_unet.pth')
+    net = UNet(n_channels=3, n_classes=2, bilinear=False)
+    net.load_state_dict(torch.load('checkpoints/checkpoint_epoch75.pth'))
     net = net.to('cuda:0')
     net = net.eval()
     print('model: ', net)

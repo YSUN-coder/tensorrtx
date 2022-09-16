@@ -23,6 +23,8 @@ const char* OUTPUT_BLOB_NAME = "prob";
 using namespace nvinfer1;
 
 static Logger gLogger;
+using std::cout;
+using std::endl;
 
 
 cv::Mat preprocess_img(cv::Mat& img) {
@@ -138,7 +140,7 @@ ICudaEngine* createEngine_l(unsigned int maxBatchSize, IBuilder* builder, IBuild
     ITensor* data = network->addInput(INPUT_BLOB_NAME, dt, Dims3{ 3, INPUT_H, INPUT_W });
     assert(data);
 
-    std::map<std::string, Weights> weightMap = loadWeights("/home/sycv/workplace/pengyuzhou/tensorrtx/unet/unet_816_672.wts");
+    std::map<std::string, Weights> weightMap = loadWeights("/home/nano/mojowrepo/tensorrtx/unet/unet.wts");
     Weights emptywts{DataType::kFLOAT, nullptr, 0};
 
     // build network
@@ -250,6 +252,11 @@ int main(int argc, char** argv) {
     cudaSetDevice(DEVICE);
     // create a model using the API directly and serialize it to a stream
     char *trtModelStream{nullptr};
+    if (trtModelStream){
+        cout << "Valid pointer!" << endl;
+    } else {
+        cout << "NULL pointer!" << endl;
+    }
     size_t size{0};
     std::string engine_name = "unet.engine";
     if (argc == 2 && std::string(argv[1]) == "-s") {
